@@ -19,7 +19,7 @@ mongoose.connect(process.env.MONGO_URI, {
   useUnifiedTopology: true
 }).then(() => console.log('MongoDB connected'))
   .catch(err => console.log(err));
-
+ 
 // Routes
 app.use('/api/news', require('./routes/newsRoutes'));
 app.use('/api/events', require('./routes/eventsRoutes'));
