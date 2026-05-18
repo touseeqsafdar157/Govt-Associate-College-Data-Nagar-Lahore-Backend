@@ -26,7 +26,7 @@ router.post('/', async (req, res) => {
 // GET all messages (Admin)
 router.get('/', async (req, res) => {
   try {
-    const messages = await ContactMessage.find().sort({ createdAt: -1 });
+    const messages = await ContactMessage.find().sort({ createdAt: 1 });
     // Map _id to id for frontend
     const formattedMessages = messages.map(m => ({
       id: m._id,

@@ -17,7 +17,7 @@ router.get('/', async (req, res) => {
         { name: "Mr. Asif Riaz", designation: "Head of Administration", experience: "20 Years", staffType: "Non-Teaching" }
       ]);
     }
-    const faculty = await Faculty.find().sort({ createdAt: -1 });
+    const faculty = await Faculty.find().sort({ createdAt: 1 });
     res.json(faculty.map(f => ({ ...f.toObject(), id: f._id })));
   } catch (err) {
     res.status(500).json({ message: err.message });

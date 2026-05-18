@@ -5,7 +5,7 @@ const News = require('../models/News');
 // Get all news
 router.get('/', async (req, res) => {
   try {
-    const news = await News.find().sort({ createdAt: -1 });
+    const news = await News.find().sort({ createdAt: 1 });
     // Map _id to id for frontend
     res.json(news.map(item => ({...item.toObject(), id: item._id})));
   } catch (error) {

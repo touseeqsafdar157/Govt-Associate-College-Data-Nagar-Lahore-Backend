@@ -4,7 +4,7 @@ const Gallery = require('../models/Gallery');
 
 router.get('/', async (req, res) => {
   try {
-    const galleryItems = await Gallery.find().sort({ createdAt: -1 });
+    const galleryItems = await Gallery.find().sort({ createdAt: 1 });
     res.json(galleryItems.map(item => ({...item.toObject(), id: item._id})));
   } catch (error) {
     res.status(500).json({ message: error.message });

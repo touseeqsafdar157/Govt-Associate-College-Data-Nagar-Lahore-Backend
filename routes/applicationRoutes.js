@@ -39,7 +39,7 @@ router.get('/', async (req, res) => {
   try {
     const query = {};
     if (req.query.status) query.status = req.query.status;
-    const apps = await Application.find(query).sort({ appliedAt: -1 });
+    const apps = await Application.find(query).sort({ appliedAt: 1 });
     res.json(apps);
   } catch (err) { res.status(500).json({ error: err.message }); }
 });

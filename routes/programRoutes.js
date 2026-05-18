@@ -15,7 +15,7 @@ router.get('/', async (req, res) => {
         { name: "ADP Computer Science", category: "ADP", duration: "2 Years", fee: "PKR 30,000/year", eligibility: "ICS or equivalent (Minimum 50% marks)", subjects: "Programming, Databases, Web Development, Networking" }
       ]);
     }
-    const programs = await Program.find().sort({ createdAt: -1 });
+    const programs = await Program.find().sort({ createdAt: 1 });
     res.json(programs.map(p => ({ ...p.toObject(), id: p._id })));
   } catch (err) {
     res.status(500).json({ message: err.message });

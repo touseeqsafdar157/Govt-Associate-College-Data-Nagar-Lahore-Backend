@@ -4,7 +4,7 @@ const Event = require('../models/Event');
 
 router.get('/', async (req, res) => {
   try {
-    const events = await Event.find().sort({ createdAt: -1 });
+    const events = await Event.find().sort({ createdAt: 1 });
     res.json(events.map(item => ({...item.toObject(), id: item._id})));
   } catch (error) {
     res.status(500).json({ message: error.message });

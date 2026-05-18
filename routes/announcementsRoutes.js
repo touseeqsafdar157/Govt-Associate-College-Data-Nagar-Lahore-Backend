@@ -4,7 +4,7 @@ const Announcement = require('../models/Announcement');
 
 router.get('/', async (req, res) => {
   try {
-    const announcements = await Announcement.find().sort({ createdAt: -1 });
+    const announcements = await Announcement.find().sort({ createdAt: 1 });
     res.json(announcements.map(item => ({...item.toObject(), id: item._id})));
   } catch (error) {
     res.status(500).json({ message: error.message });

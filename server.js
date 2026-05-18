@@ -2,6 +2,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
+const dns = require('dns');
+dns.setServers(['8.8.8.8', '8.8.4.4']); // Fix for querySrv ECONNREFUSED
 require('dotenv').config();
 
 const app = express();
@@ -16,7 +18,8 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
-  useUnifiedTopology: true
+  useUnifiedTopology: true,
+  family: 4
 }).then(() => console.log('MongoDB connected'))
   .catch(err => console.log(err));
  

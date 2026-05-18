@@ -23,7 +23,7 @@ router.post('/login', async (req, res) => {
 // Get all users (without passwords)
 router.get('/', async (req, res) => {
   try {
-    const users = await User.find().select('-password').sort({ createdAt: -1 });
+    const users = await User.find().select('-password').sort({ createdAt: 1 });
     res.json(users.map(u => ({ ...u.toObject(), id: u._id })));
   } catch (error) {
     res.status(500).json({ message: error.message });

@@ -16,7 +16,7 @@ router.get('/', async (req, res) => {
         { category: "Other", title: "Medical Center", description: "First aid and basic medical facilities available on campus.", iconName: "Target" }
       ]);
     }
-    const facilities = await Facility.find().sort({ createdAt: -1 });
+    const facilities = await Facility.find().sort({ createdAt: 1 });
     res.json(facilities.map(f => ({ ...f.toObject(), id: f._id })));
   } catch (err) {
     res.status(500).json({ message: err.message });

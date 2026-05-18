@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const facultySchema = new mongoose.Schema({
   name: { type: String, required: true },
   designation: { type: String, required: true },
-  qualification: { type: String, required: true },
+  qualification: { type: String },
   dept: { type: String }, // e.g. Science, Arts, Commerce, Computer
   subject: { type: String },
   experience: { type: String, required: true },
