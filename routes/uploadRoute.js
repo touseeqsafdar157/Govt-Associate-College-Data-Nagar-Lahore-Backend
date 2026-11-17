@@ -46,7 +46,9 @@ router.post('/', (req, res) => {
       return res.status(400).json({ error: 'No files uploaded' });
     }
     
-    const urls = req.files.map(file => `${req.protocol}://${req.get('host')}/uploads/${file.filename}`);
+    const proto = req.headers['x-forwarded-proto'] || (req.get('host').includes('localhost') ? 'http' : 'https');
+    const host = req.get('host');
+    const urls = req.files.map(file => `${proto}://${host}/uploads/${file.filename}`);
     // return both url (first one) and urls (array) to avoid breaking existing single-upload implementations that aren't updated yet
     res.json({ url: urls[0], urls });
   });

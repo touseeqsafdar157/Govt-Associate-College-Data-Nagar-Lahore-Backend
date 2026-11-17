@@ -10,8 +10,9 @@ router.get('/', async (req, res) => {
       await Facility.insertMany([
         { category: "Laboratory", title: "Physics Laboratory", description: "Fully equipped physics lab for hands-on experiments covering mechanics, optics, and electromagnetism.", iconName: "Microscope", capacity: "50 Students", instructor: "Prof. Amir Khan", equipmentList: ["Oscilloscopes", "Spectrometers", "Vernier Calipers", "Laser Setup"] },
         { category: "Laboratory", title: "Computer Lab 1", description: "High-performance computing facility with internet access for programming and software development.", iconName: "Monitor", capacity: "60 Students", instructor: "Prof. Fatima Noor", equipmentList: ["60 Core i7 PCs", "High-speed Wi-Fi", "Projector", "Air Conditioning"] },
-        { category: "Sports", title: "Cricket Ground", description: "Maintained cricket ground with practice nets for college tournaments.", iconName: "Trophy", capacity: "Full Team", instructor: "Mr. Noman Khawaja" },
-        { category: "Sports", title: "Gymnasium", description: "Indoor gym with weightlifting and fitness equipment.", iconName: "Dumbbell", capacity: "30 Students", instructor: "Mr. Noman Khawaja" },
+        { category: "Sports", title: "Badminton Court", description: "Indoor and outdoor badminton courts with tournament-standard markings and equipment.", iconName: "Trophy", capacity: "Multiple Courts", instructor: "Sports Department" },
+        { category: "Sports", title: "Athletics Track", description: "Spacious track and field facility for racing, high jump, long jump, and track events.", iconName: "Target", capacity: "Athletic Team", instructor: "Sports Department" },
+        { category: "Sports", title: "Table Games Arena", description: "Dedicated indoor hall for table tennis, carrom, chess, and board games.", iconName: "Dumbbell", capacity: "40 Students", instructor: "Sports Department" },
         { category: "Other", title: "Cafeteria", description: "Hygienic and affordable food options for students and staff.", iconName: "Building2" },
         { category: "Other", title: "Medical Center", description: "First aid and basic medical facilities available on campus.", iconName: "Target" }
       ]);

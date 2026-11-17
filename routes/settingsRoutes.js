@@ -30,10 +30,10 @@ router.get('/', async (req, res) => {
         sportsGala: {
           year: "2026",
           highlights: [
-            { title: "Cricket Championship", details: ["Winners: FSc Pre-Engineering Team A", "Best Player: Muhammad Hamza (50 runs, 3 wickets)"] },
-            { title: "Football Tournament", details: ["Winners: ADP Science Team", "Best Player: Ahmed Raza (4 goals)"] },
-            { title: "Athletics Events", details: ["100m Sprint: Ali Akbar (11.2 seconds)", "Long Jump: Sara Khan (5.2 meters)"] },
-            { title: "Volleyball Championship", details: ["Winners: I.Com Department Team"] }
+            { title: "Badminton Championship", details: ["Singles Winner: Ayesha Fatima (21-18, 21-16)", "Doubles Winners: Zainab & Fatima"] },
+            { title: "Athletics & Track Events", details: ["100m Sprint: Maryam Bibi (12.4s)", "Relay Race & High Jump Competitions"] },
+            { title: "Table Games Tournament", details: ["Table Tennis Singles Champion: Sana Tariq", "Carrom & Chess Winners"] },
+            { title: "Volleyball & Fitness Challenge", details: ["Winners: Departmental Team Champions"] }
           ]
         },
         annualFunction: {
@@ -169,10 +169,10 @@ router.get('/', async (req, res) => {
       updated = true;
     }
     if (!settings.totalVisitors) { settings.totalVisitors = 125847; updated = true; }
-    if (!settings.collegeName) { settings.collegeName = "Govt. Associate College"; updated = true; }
+    if (!settings.collegeName) { settings.collegeName = "Govt. Associate College for Women (GACW)"; updated = true; }
     if (!settings.collegeLocation) { settings.collegeLocation = "Data Nagar, Lahore"; updated = true; }
     if (!settings.collegeEstYear) { settings.collegeEstYear = "1981"; updated = true; }
-    if (!settings.collegeShortHistory) { settings.collegeShortHistory = "Established in 1981, GAC Data Nagar has been a beacon of quality education and academic excellence in Punjab for over four decades."; updated = true; }
+    if (!settings.collegeShortHistory) { settings.collegeShortHistory = "Established in 1981, GACW Data Nagar has been a beacon of quality education and academic excellence for women in Punjab for over four decades."; updated = true; }
     if (!settings.homeStats || settings.homeStats.length === 0) {
       settings.homeStats = [
         { icon: "Users", value: "3,500+", label: "Enrolled Students" },
@@ -186,7 +186,7 @@ router.get('/', async (req, res) => {
       settings.homeFeatures = [
         { icon: "GraduationCap", title: "Expert Faculty", desc: "Highly qualified professors with decades of teaching experience." },
         { icon: "BookOpen", title: "Modern Labs", desc: "State-of-the-art science, computer, and language laboratories." },
-        { icon: "Users", title: "Sports Facilities", desc: "Cricket, football, volleyball, and indoor games courts." },
+        { icon: "Users", title: "Sports Facilities", desc: "Badminton, athletics, table games, and indoor/outdoor recreation." },
         { icon: "Award", title: "Scholarships", desc: "Merit-based and need-based financial assistance programs." },
         { icon: "Shield", title: "Safe Campus", desc: "Secure, monitored campus with female-only sections." },
         { icon: "Clock", title: "Regular Classes", desc: "Consistent academic schedule with tutorial & extra coaching." }

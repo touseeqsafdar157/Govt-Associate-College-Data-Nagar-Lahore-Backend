@@ -18,8 +18,8 @@ const settingsSchema = new mongoose.Schema({
   admissionsOpen: { type: Boolean, default: true },
   lastDateAdmission: { type: String, default: 'May 31, 2026' },
   principalName: { type: String, default: 'Prof. Dr. Farzana Ashfaq' },
-  principalMessage: { type: String, default: 'Welcome to Government Associate College, Data Nagar.' },
-  phone: { type: String, default: '04237602172' },
+  principalMessage: { type: String, default: 'Welcome to Government Associate College for Women (GACW), Data Nagar.' },
+  phone: { type: String, default: '042-37602172' },
   email: { type: String, default: 'datanagargacw@gmail.com' },
   address: { type: String, default: 'Ilahi Bakhsh Road Data Nagar, Lahore' },
   tickerText: { type: String, default: 'Admissions Open 2026-27 | Last Date: May 31, 2026' },
@@ -119,10 +119,10 @@ const settingsSchema = new mongoose.Schema({
 
   // Footer fields
   totalVisitors: { type: Number, default: 125847 },
-  collegeName: { type: String, default: "Govt. Associate College" },
+  collegeName: { type: String, default: "Govt. Associate College for Women (GACW)" },
   collegeLocation: { type: String, default: "Data Nagar, Lahore" },
   collegeEstYear: { type: String, default: "1981" },
-  collegeShortHistory: { type: String, default: "Established in 1981, GAC Data Nagar has been a beacon of quality education and academic excellence in Punjab for over four decades." },
+  collegeShortHistory: { type: String, default: "Established in 1981, GACW Data Nagar has been a beacon of quality education and academic excellence for women in Punjab for over four decades." },
 
   // Home Page fields
   homeStats: { type: [{ icon: String, value: String, label: String }], default: [
@@ -134,7 +134,7 @@ const settingsSchema = new mongoose.Schema({
   homeFeatures: { type: [{ icon: String, title: String, desc: String }], default: [
     { icon: "GraduationCap", title: "Expert Faculty", desc: "Highly qualified professors with decades of teaching experience." },
     { icon: "BookOpen", title: "Modern Labs", desc: "State-of-the-art science, computer, and language laboratories." },
-    { icon: "Users", title: "Sports Facilities", desc: "Cricket, football, volleyball, and indoor games courts." },
+    { icon: "Users", title: "Sports Facilities", desc: "Badminton, athletics, table games, and indoor/outdoor recreation." },
     { icon: "Award", title: "Scholarships", desc: "Merit-based and need-based financial assistance programs." },
     { icon: "Shield", title: "Safe Campus", desc: "Secure, monitored campus with female-only sections." },
     { icon: "Clock", title: "Regular Classes", desc: "Consistent academic schedule with tutorial & extra coaching." }

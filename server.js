@@ -1,12 +1,14 @@
+require('dotenv').config({ path: require('path').join(__dirname, '.env') });
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
 const dns = require('dns');
 dns.setServers(['8.8.8.8', '8.8.4.4']); // Fix for querySrv ECONNREFUSED
-require('dotenv').config();
+
 
 const app = express();
+app.set('trust proxy', 1);
 
 app.use(cors());
 app.use(express.json({ limit: '20mb' }));

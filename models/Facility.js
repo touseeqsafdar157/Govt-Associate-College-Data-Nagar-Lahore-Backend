@@ -7,7 +7,8 @@ const facilitySchema = new mongoose.Schema({
   iconName: { type: String, default: 'Microscope' }, // stores string like 'Microscope', 'Trophy', etc.
   capacity: { type: String },
   instructor: { type: String },
-  equipmentList: { type: [String], default: [] }
+  equipmentList: { type: [String], default: [] },
+  image: { type: String, default: '' }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Facility', facilitySchema);
