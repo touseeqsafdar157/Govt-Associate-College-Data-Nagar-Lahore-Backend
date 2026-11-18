@@ -76,6 +76,7 @@ const settingsSchema = new mongoose.Schema({
     facilities: { type: [String], default: ["High-speed Wi-Fi Access", "Computer Workstations", "Quiet Study Zones", "Photocopier Services"] },
     rules: { type: [String], default: ["College ID card is mandatory for entry and borrowing books.", "Strict silence must be observed inside the library premises.", "Books can be issued for a maximum of 14 days.", "Use of mobile phones for calls is strictly prohibited."] }
   },
+  libraryImage: { type: String, default: "" },
 
   // About Page fields
   aboutHistory: { type: [{ year: String, title: String, description: String }], default: [
