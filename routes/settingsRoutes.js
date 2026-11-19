@@ -224,7 +224,11 @@ router.put('/', async (req, res) => {
       settings = new Settings(req.body);
       await settings.save();
     } else {
-      settings = await Settings.findByIdAndUpdate(settings._id, req.body, { new: true });
+      settings = await Settings.findByIdAndUpdate(
+        settings._id,
+        { $set: req.body },
+        { new: true, runValidators: false }
+      );
     }
     res.json({...settings.toObject(), id: settings._id});
   } catch (error) {
