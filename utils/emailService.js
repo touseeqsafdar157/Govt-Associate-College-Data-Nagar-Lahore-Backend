@@ -1,60 +1,82 @@
 const nodemailer = require('nodemailer');
 
 /**
- * Returns a configured nodemailer transporter.
- * Checks process.env first, then falls back to MongoDB SiteSettings (smtpEmail / smtpPassword).
- * Strictly guards against hanging with 8-second socket timeouts.
+ * Resolves SMTP credentials.
+ * Prioritizes Admin Panel DB Settings (smtpEmail + smtpPassword) as a pair.
+ * Falls back to process.env (EMAIL_USER + EMAIL_PASS).
  */
-async function getTransporter() {
-  let user = process.env.EMAIL_USER || process.env.SMTP_USER;
-  let pass = process.env.EMAIL_PASS || process.env.SMTP_PASS || process.env.EMAIL_PASSWORD;
+async function getCredentials() {
+  let user = null;
+  let pass = null;
 
+  // 1. Check MongoDB Settings first (saved via Admin Panel)
+  try {
+    const Settings = require('../models/Settings');
+    const settings = await Settings.findOne();
+    if (settings && settings.smtpEmail && settings.smtpPassword) {
+      user = settings.smtpEmail.trim();
+      pass = settings.smtpPassword.replace(/\s+/g, '').trim();
+    }
+  } catch (e) {
+    console.error('[EmailService] Error reading settings for credentials:', e.message);
+  }
+
+  // 2. If not in DB, fallback to environment variables
   if (!user || !pass) {
-    try {
-      const Settings = require('../models/Settings');
-      const settings = await Settings.findOne();
-      if (settings) {
-        if (!user && settings.smtpEmail) user = settings.smtpEmail.trim();
-        if (!pass && settings.smtpPassword) pass = settings.smtpPassword.trim();
-      }
-    } catch (e) {
-      console.error('[EmailService] Error reading settings for credentials:', e.message);
+    if (process.env.EMAIL_USER && (process.env.EMAIL_PASS || process.env.EMAIL_PASSWORD)) {
+      user = process.env.EMAIL_USER.trim();
+      pass = (process.env.EMAIL_PASS || process.env.EMAIL_PASSWORD).replace(/\s+/g, '').trim();
+    } else if (process.env.SMTP_USER && process.env.SMTP_PASS) {
+      user = process.env.SMTP_USER.trim();
+      pass = process.env.SMTP_PASS.replace(/\s+/g, '').trim();
     }
   }
 
+  return { user, pass };
+}
+
+/**
+ * Returns a configured nodemailer transporter.
+ */
+async function getTransporter() {
+  const { user, pass } = await getCredentials();
+
   if (!user || !pass) {
-    console.warn('[EmailService] SMTP credentials not set (EMAIL_USER / EMAIL_PASS in Render or Admin Settings). Query recorded in database only.');
-    return null;
+    console.warn('[EmailService] SMTP credentials not set. Query recorded in database only.');
+    return { transporter: null, user: null };
   }
 
   const host = process.env.SMTP_HOST || 'smtp.gmail.com';
   const isGmail = host.includes('gmail') || (!process.env.SMTP_HOST && user.includes('gmail.com'));
 
+  let transporter;
   if (isGmail && !process.env.SMTP_HOST) {
-    return nodemailer.createTransport({
+    transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: { user, pass },
-      connectionTimeout: 8000,
+      connectionTimeout: 10000,
       greetingTimeout: 5000,
-      socketTimeout: 10000
+      socketTimeout: 15000
+    });
+  } else {
+    const port = parseInt(process.env.SMTP_PORT || '465', 10);
+    const secure = port === 465 || process.env.SMTP_SECURE === 'true';
+
+    transporter = nodemailer.createTransport({
+      host,
+      port,
+      secure,
+      auth: { user, pass },
+      connectionTimeout: 10000,
+      greetingTimeout: 5000,
+      socketTimeout: 15000,
+      tls: {
+        rejectUnauthorized: false
+      }
     });
   }
 
-  const port = parseInt(process.env.SMTP_PORT || '465', 10);
-  const secure = port === 465 || process.env.SMTP_SECURE === 'true';
-
-  return nodemailer.createTransport({
-    host,
-    port,
-    secure,
-    auth: { user, pass },
-    connectionTimeout: 8000,
-    greetingTimeout: 5000,
-    socketTimeout: 10000,
-    tls: {
-      rejectUnauthorized: false
-    }
-  });
+  return { transporter, user };
 }
 
 /**
@@ -75,18 +97,17 @@ async function sendFacultyQueryEmail({
     return { success: false, reason: 'Faculty email is required' };
   }
 
-  const transporter = await getTransporter();
-  if (!transporter) {
+  const { transporter, user } = await getTransporter();
+  if (!transporter || !user) {
     return {
       success: false,
       skipped: true,
-      reason: 'SMTP credentials (EMAIL_USER / EMAIL_PASS) not configured. Inquiry saved in database.'
+      reason: 'SMTP credentials (smtpEmail / smtpPassword) not configured. Inquiry saved in database.'
     };
   }
 
-  const senderUser = process.env.EMAIL_USER || process.env.SMTP_USER || 'datanagargacw@gmail.com';
   const fromName = process.env.EMAIL_FROM_NAME || 'Govt. Associate College for Women, Data Nagar';
-  const fromAddress = `"${fromName}" <${senderUser}>`;
+  const fromAddress = `"${fromName}" <${user}>`;
 
   const safeSubject = `[Faculty Inquiry] ${subject || 'New Message from College Portal'}`;
 
@@ -167,11 +188,6 @@ async function sendFacultyQueryEmail({
     text: textContent,
     html: htmlContent
   };
-
-  const collegeBackup = process.env.COLLEGE_BACKUP_EMAIL || process.env.EMAIL_USER;
-  if (collegeBackup && collegeBackup !== facultyEmail) {
-    mailOptions.bcc = collegeBackup;
-  }
 
   const info = await transporter.sendMail(mailOptions);
   return {
