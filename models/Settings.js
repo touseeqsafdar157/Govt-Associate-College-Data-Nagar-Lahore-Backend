@@ -20,7 +20,10 @@ const settingsSchema = new mongoose.Schema({
   principalName: { type: String, default: 'Prof. Dr. Farzana Ashfaq' },
   principalMessage: { type: String, default: 'Welcome to Government Associate College for Women (GACW), Data Nagar.' },
   phone: { type: String, default: '042-37602172' },
+  whatsapp: { type: String, default: '0319-7030016' },
   email: { type: String, default: 'datanagargacw@gmail.com' },
+  smtpEmail: { type: String, default: 'datanagargacw@gmail.com' },
+  smtpPassword: { type: String, default: '' },
   address: { type: String, default: 'Ilahi Bakhsh Road Data Nagar, Lahore' },
   tickerText: { type: String, default: 'Admissions Open 2026-27 | Last Date: May 31, 2026' },
   eligibilityCriteria: { type: [eligibilitySchema], default: [

@@ -2,55 +2,59 @@ const nodemailer = require('nodemailer');
 
 /**
  * Returns a configured nodemailer transporter.
- * Prioritizes standard Gmail/SMTP credentials in environment variables.
- * Falls back to Ethereal sandbox if credentials are not yet configured.
+ * Checks process.env first, then falls back to MongoDB SiteSettings (smtpEmail / smtpPassword).
+ * Strictly guards against hanging with 8-second socket timeouts.
  */
 async function getTransporter() {
-  const user = process.env.EMAIL_USER || process.env.SMTP_USER;
-  const pass = process.env.EMAIL_PASS || process.env.SMTP_PASS || process.env.EMAIL_PASSWORD;
+  let user = process.env.EMAIL_USER || process.env.SMTP_USER;
+  let pass = process.env.EMAIL_PASS || process.env.SMTP_PASS || process.env.EMAIL_PASSWORD;
 
-  if (user && pass) {
-    const host = process.env.SMTP_HOST || 'smtp.gmail.com';
-    const isGmail = host.includes('gmail') || (!process.env.SMTP_HOST && user.includes('gmail.com'));
-
-    if (isGmail && !process.env.SMTP_HOST) {
-      return nodemailer.createTransport({
-        service: 'gmail',
-        auth: { user, pass }
-      });
-    }
-
-    const port = parseInt(process.env.SMTP_PORT || '465', 10);
-    const secure = port === 465 || process.env.SMTP_SECURE === 'true';
-
-    return nodemailer.createTransport({
-      host,
-      port,
-      secure,
-      auth: { user, pass },
-      tls: {
-        rejectUnauthorized: false
+  if (!user || !pass) {
+    try {
+      const Settings = require('../models/Settings');
+      const settings = await Settings.findOne();
+      if (settings) {
+        if (!user && settings.smtpEmail) user = settings.smtpEmail.trim();
+        if (!pass && settings.smtpPassword) pass = settings.smtpPassword.trim();
       }
-    });
+    } catch (e) {
+      console.error('[EmailService] Error reading settings for credentials:', e.message);
+    }
   }
 
-  // Fallback: Ethereal test account if no credentials yet configured
-  console.warn('[EmailService] EMAIL_USER / EMAIL_PASS not detected. Creating ethereal test account...');
-  try {
-    const testAccount = await nodemailer.createTestAccount();
-    return nodemailer.createTransport({
-      host: testAccount.smtp.host,
-      port: testAccount.smtp.port,
-      secure: testAccount.smtp.secure,
-      auth: {
-        user: testAccount.user,
-        pass: testAccount.pass
-      }
-    });
-  } catch (err) {
-    console.error('[EmailService] Failed to initialize fallback transporter:', err);
+  if (!user || !pass) {
+    console.warn('[EmailService] SMTP credentials not set (EMAIL_USER / EMAIL_PASS in Render or Admin Settings). Query recorded in database only.');
     return null;
   }
+
+  const host = process.env.SMTP_HOST || 'smtp.gmail.com';
+  const isGmail = host.includes('gmail') || (!process.env.SMTP_HOST && user.includes('gmail.com'));
+
+  if (isGmail && !process.env.SMTP_HOST) {
+    return nodemailer.createTransport({
+      service: 'gmail',
+      auth: { user, pass },
+      connectionTimeout: 8000,
+      greetingTimeout: 5000,
+      socketTimeout: 10000
+    });
+  }
+
+  const port = parseInt(process.env.SMTP_PORT || '465', 10);
+  const secure = port === 465 || process.env.SMTP_SECURE === 'true';
+
+  return nodemailer.createTransport({
+    host,
+    port,
+    secure,
+    auth: { user, pass },
+    connectionTimeout: 8000,
+    greetingTimeout: 5000,
+    socketTimeout: 10000,
+    tls: {
+      rejectUnauthorized: false
+    }
+  });
 }
 
 /**
@@ -68,12 +72,16 @@ async function sendFacultyQueryEmail({
   designation
 }) {
   if (!facultyEmail) {
-    throw new Error('Faculty email is required');
+    return { success: false, reason: 'Faculty email is required' };
   }
 
   const transporter = await getTransporter();
   if (!transporter) {
-    throw new Error('Email service could not be initialized');
+    return {
+      success: false,
+      skipped: true,
+      reason: 'SMTP credentials (EMAIL_USER / EMAIL_PASS) not configured. Inquiry saved in database.'
+    };
   }
 
   const senderUser = process.env.EMAIL_USER || process.env.SMTP_USER || 'datanagargacw@gmail.com';
@@ -141,7 +149,7 @@ async function sendFacultyQueryEmail({
     </div>
     <div class="footer">
       <p style="margin: 0 0 6px 0;"><strong>Govt. Associate College for Women (GACW)</strong></p>
-      <p style="margin: 0 0 6px 0;">Ilahi Bakhsh Road, Data Nagar, Lahore | Phone: 042-37602172</p>
+      <p style="margin: 0 0 6px 0;">Ilahi Bakhsh Road, Data Nagar, Lahore | Phone: 042-37602172 | WhatsApp: 0319-7030016</p>
       <p style="margin: 0; color: #94a3b8;">This is an automated notification from the GACW Data Nagar web portal.</p>
     </div>
   </div>
@@ -166,12 +174,9 @@ async function sendFacultyQueryEmail({
   }
 
   const info = await transporter.sendMail(mailOptions);
-  const previewUrl = nodemailer.getTestMessageUrl(info);
-
   return {
     success: true,
-    messageId: info.messageId,
-    previewUrl: previewUrl || null
+    messageId: info.messageId
   };
 }
 

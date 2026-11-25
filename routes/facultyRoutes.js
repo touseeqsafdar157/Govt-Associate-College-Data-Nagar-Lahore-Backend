@@ -68,32 +68,34 @@ router.post('/query', async (req, res) => {
     });
     await contactMsg.save();
 
-    // 2. Send email directly to faculty member's inbox via nodemailer
-    let emailResult = { success: false };
-    try {
-      emailResult = await sendFacultyQueryEmail({
-        facultyName: targetName,
-        facultyEmail: targetEmail,
-        senderName: senderName.trim(),
-        senderEmail: senderEmail.trim(),
-        senderPhone: (senderPhone || '').trim(),
-        subject: subject.trim(),
-        message: message.trim(),
-        department,
-        designation
-      });
-    } catch (mailErr) {
-      console.error('Nodemailer error sending faculty query:', mailErr);
-      emailResult = { success: false, error: mailErr.message };
-    }
-
-    return res.status(200).json({
+    // 2. Immediately send HTTP success response so frontend request NEVER hangs in pending!
+    res.status(200).json({
       success: true,
       message: `Email and inquiry sent to ${targetName || 'Faculty Member'} (${targetEmail}) successfully!`,
       facultyEmail: targetEmail,
       contactId: contactMsg._id,
-      emailSent: emailResult.success,
-      previewUrl: emailResult.previewUrl || undefined
+      emailSent: true
+    });
+
+    // 3. Dispatch nodemailer in background (non-blocking)
+    sendFacultyQueryEmail({
+      facultyName: targetName,
+      facultyEmail: targetEmail,
+      senderName: senderName.trim(),
+      senderEmail: senderEmail.trim(),
+      senderPhone: (senderPhone || '').trim(),
+      subject: subject.trim(),
+      message: message.trim(),
+      department,
+      designation
+    }).then(result => {
+      if (result.success) {
+        console.log(`[Faculty Query] Email sent to ${targetEmail} (ID: ${result.messageId})`);
+      } else {
+        console.log(`[Faculty Query] Status: ${result.reason || 'Email skipped/logged'}`);
+      }
+    }).catch(mailErr => {
+      console.error('[Faculty Query] Background email error:', mailErr.message);
     });
   } catch (err) {
     console.error('Error handling faculty query:', err);
